@@ -18,7 +18,7 @@ github
 https://tinyurl.com/36kc2w68
 https://github.com/rogerjdeangelis/utl-sharing-datastep-memory-with-dosubl-using-assembler-like-load-and-store-instructions
 
-Related repos on end
+Related repos and commonc macro on end
 
 /*
  _ __  _ __ ___   ___ ___  ___ ___
@@ -133,6 +133,43 @@ https://github.com/rogerjdeangelis/utl_using_dosubl_instead_of_a_macro_to_avoid_
 https://github.com/rogerjdeangelis/utl_using_dosubl_to_avoid_klingon_macro_quoting_functions
 https://github.com/rogerjdeangelis/utl_why_proc_import_export_needs_to_be_deprecated_and_dosubl_acknowledged
 
+
+https://tinyurl.com/y9nfugth                                                              
+https://github.com/rogerjdeangelis/utl-macros-used-in-many-of-rogerjdeangelis-repositories
+
+/*                                              
+  ___ ___  _ __ ___  _ __ ___   ___  _ __   ___ 
+ / __/ _ \| `_ ` _ \| `_ ` _ \ / _ \| `_ \ / __|
+| (_| (_) | | | | | | | | | | | (_) | | | | (__ 
+ \___\___/|_| |_| |_|_| |_| |_|\___/|_| |_|\___|
+                                                
+*/
+
+%macro commonc(var,action=INIT);
+ * dosubl sets sysindex to 1;
+ * we are in dosubl if sysindex=1;
+ * increment sysindex so it is not 1 next time macro called;
+ %local varcut varlen;
+ %let varcut=%scan(&var,1);
+ %let varlen=%scan(&var,2);
+ %if %upcase(&action) = INIT %then %do;
+    length &var;
+    retain &varcut " ";
+    call symputx("varadr",put(addrlong(&varcut.),hex16.),"G");
+
+ %end;
+ %if "%upcase(&action)" = "PUT" %then %do;
+    length &var;
+    retain &varcut;
+    call pokelong(&varcut.,"&varadr."x, &varlen.);
+ %end;
+ %else %if "%upcase(&action)" = "GET" %then %do;
+
+    retain &varcut " ";
+    &varcut = peekclong("&varadr."x,&varlen.);
+    %end;
+
+%mend commonc;
 
 /*              _
   ___ _ __   __| |
